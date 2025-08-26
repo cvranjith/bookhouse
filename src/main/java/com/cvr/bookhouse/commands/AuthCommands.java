@@ -10,20 +10,20 @@ import com.cvr.bookhouse.service.AuthService;
 @ShellComponent
 public class AuthCommands {
 
-    private final AuthService auth;
+    private final AuthService svc;
     private final MessageFormatter fmt;
 
-    public AuthCommands(AuthService auth, MessageFormatter fmt) {
-        this.auth = auth;
+    public AuthCommands(AuthService svc, MessageFormatter fmt) {
+        this.svc = svc;
         this.fmt = fmt;
     }
 
     @ShellMethod(key = "login",value = "Login with a user id. Usage: login <userId>")
     public String login(@ShellOption(help = "User id") String userId) {
-        return fmt.format(auth.login(userId));
+        return fmt.format(svc.login(userId));
     }
     @ShellMethod(key = "logout", value = "Logout the current user.")
     public String logout() {
-        return fmt.format(auth.logout());
+        return fmt.format(svc.logout());
     }
 }

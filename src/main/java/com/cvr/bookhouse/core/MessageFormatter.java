@@ -31,6 +31,12 @@ public class MessageFormatter {
         this.session = session;
     }
 
+    public static String formatDateTime( Instant dateTime) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                                .withZone(ZoneId.systemDefault())
+                                .format(dateTime);
+    }    
+
     public String format(Result r) {
         String colored = (r.ok() ? GREEN : RED) + r.msg() + RESET;
 

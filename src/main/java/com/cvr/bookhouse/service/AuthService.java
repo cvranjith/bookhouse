@@ -1,21 +1,38 @@
 package com.cvr.bookhouse.service;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.stereotype.Service;
 
+import com.cvr.bookhouse.core.MessageFormatter;
 import com.cvr.bookhouse.core.Result;
 import com.cvr.bookhouse.model.Session;
+import com.cvr.bookhouse.model.User;
 
 @Service
 public class AuthService {
 //String userId="";
     private final Session session;
+    private final UserService userService;
 
-    public AuthService(Session session) {
+    public AuthService(Session session,UserService userService) {
         this.session = session;
+        this.userService=userService;
     }
-    public boolean isLoggedIn() {   
+    private boolean isLoggedIn() {   
         //return !userId.isEmpty();
         return !session.getUserId().isEmpty();
+    }
+    String loginBanner(String newUserId, Instant lastLoginDate ){
+        String banner = "Welcome, "+ newUserId +"\n";
+        if (lastLoginDate == null) {
+            banner += "This is your first login.";
+        } else {
+            banner += "Your last login was at " + MessageFormatter.formatDateTime(lastLoginDate);
+        }
+        return banner;
     }
     public Result login(String newUserId) {
         if (newUserId.equals(session.getUserId())) {
@@ -28,8 +45,11 @@ public class AuthService {
                 return logoutResult;
             }
         }
+        User u = userService.upsertUser(newUserId);
+        Instant lastLoginDate = u.getLastLoginDate();
         session.setUserId(newUserId);
-        return Result.ok("Logged in as: " + session.getUserId());
+        userService.updateLoginDate(newUserId);
+        return Result.ok(loginBanner(session.getUserId(),lastLoginDate));
     }
 
     public Result logout() {
