@@ -10,23 +10,19 @@ import com.cvr.bookhouse.service.BookService;
 @ShellComponent
 public class AdminCommands {
 
-    private final BookService svc;
-    private final MessageFormatter fmt;
+    private final BookService bookService;
+    private final MessageFormatter messageFormatter;
 
-    public AdminCommands(BookService svc, MessageFormatter fmt) {
-        this.svc = svc;
-        this.fmt = fmt;
+    public AdminCommands(BookService bookService, MessageFormatter messageFormatter) {
+        this.bookService = bookService;
+        this.messageFormatter = messageFormatter;
     }
 
     @ShellMethod(key = "add-book", value = "Add a book. Usage: add-book <bookId> [--copies <n>]")
         public String addBook(
             @ShellOption(help = "Book id") String bookId,
             @ShellOption(help = "Number of copies", defaultValue = "1") Integer copies) {
-        return fmt.format(svc.addBook(bookId,copies));
+        return messageFormatter.format(bookService.addBook(bookId,copies));
     }
-    @ShellMethod(key = "list", value = "List books. Usage: list [bookId]")
-        public String addBook(
-            @ShellOption(help = "Book id", defaultValue="") String bookId) {
-        return fmt.format(svc.list(bookId));
-    }
+
 }

@@ -6,17 +6,19 @@ import org.springframework.shell.standard.ShellOption;
 
 import com.cvr.bookhouse.core.MessageFormatter;
 import com.cvr.bookhouse.service.BookService;
-import com.cvr.bookhouse.service.LoanService;
+//import com.cvr.bookhouse.service.LoanService;
 
 @ShellComponent
 public class BookHouseCommands {
 
-    private final LoanService svc;
-    private final MessageFormatter fmt;
+    private final BookService bookService;
+    //private final LoanService loanService;
+    private final MessageFormatter messageFormatter;
 
-    public BookHouseCommands(LoanService svc, MessageFormatter fmt) {
-        this.svc = svc;
-        this.fmt = fmt;
+    public BookHouseCommands(BookService bookService, /*LoanService loanService,*/ MessageFormatter messageFormatter) {
+        this.bookService = bookService;
+        //this.loanService = loanService;
+        this.messageFormatter = messageFormatter;
     }
 
     @ShellMethod(key = "ok",value = "I will return ok")
@@ -24,8 +26,13 @@ public class BookHouseCommands {
         return "ok";
     }
     @ShellMethod(key = "borrow", value = "Borrow a book. Usage: borrow <bookId>")
-        public String borrow(
+        public String borrowBook(
             @ShellOption(help = "Book id") String bookId) {
-        return fmt.format(svc.borrow(bookId));
+        return messageFormatter.format(bookService.borrowBook(bookId));
+    }
+    @ShellMethod(key = "list", value = "List books. Usage: list [bookId]")
+        public String addBook(
+            @ShellOption(help = "Book id", defaultValue="") String bookId) {
+        return messageFormatter.format(bookService.list(bookId));
     }
 }
