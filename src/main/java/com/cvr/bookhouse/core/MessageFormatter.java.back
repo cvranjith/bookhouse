@@ -5,7 +5,7 @@ import org.jline.reader.LineReader;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
-import com.cvr.bookhouse.model.Session;
+//import com.cvr.bookhouse.model.Session;
 
 import java.nio.file.*;
 import java.time.Instant;
@@ -25,7 +25,7 @@ public class MessageFormatter {
     private static final String RED   = "\u001B[31m";
     private static final String GREEN = "\u001B[32m";
 
-    // Inline style/color tags usable in messages.properties
+    // Inline style/color tags usable in messages.properties (now with [[TAG]] syntax)
     private static final Map<String, String> TAGS = Map.ofEntries(
         Map.entry("RESET",  "\u001B[0m"),
         Map.entry("BOLD",   "\u001B[1m"),
@@ -42,7 +42,9 @@ public class MessageFormatter {
         Map.entry("CYAN",   "\u001B[36m"),
         Map.entry("WHITE",  "\u001B[37m")
     );
-    private static final Pattern TAG_PATTERN = Pattern.compile("\\{([A-Z_]+)\\}");
+
+    // IMPORTANT: use [[TAG]] to avoid MessageFormat conflicts with {0}, {1}, ...
+    private static final Pattern TAG_PATTERN = Pattern.compile("\\[\\[([A-Z_]+)\\]\\]");
 
     // logging (optional)
     private static final Path LOG = Paths.get("session.log");
@@ -50,52 +52,89 @@ public class MessageFormatter {
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final Pattern ANSI = Pattern.compile("\u001B\\[[;\\d]*m");
 
-    private final ObjectProvider<LineReader> lineReaderProvider; // lazy, if you want to detect TTY later
-    private final Session session;
+    private final ObjectProvider<LineReader> lineReaderProvider; // lazy
+    //private final Session session;
     private final MessageSource messages;
 
+    // Optional: allow disabling color via env var NO_COLOR=true
+    private static final boolean NO_COLOR = Boolean.parseBoolean(System.getenv().getOrDefault("NO_COLOR", "false"));
+
     public MessageFormatter(ObjectProvider<LineReader> lineReaderProvider,
-                            Session session,
+                            //Session session,
                             MessageSource messages) {
         this.lineReaderProvider = lineReaderProvider;
-        this.session = session;
+        //this.session = session;
         this.messages = messages;
     }
 
-    /** Format a multi-part Result, colorizing each line based on ok/error and supporting inline tags. */
-    public String format(Result r) {
-        final var loc = LocaleContextHolder.getLocale();
-        final String base = r.ok() ? GREEN : RED;
+public String format(Result r) {
+    final var loc = LocaleContextHolder.getLocale();
+    final String base = (NO_COLOR ? "" : (r.ok() ? GREEN : RED));
 
-        // Resolve codes -> text, apply inline tags, wrap each line with base color + RESET
-        String out = r.messages().stream()
-            .map(m -> resolve(m.code(), m.args(), loc))
-            .map(this::applyInlineTags)
-            .map(line -> base + line + RESET)               // line-level color with reset at end
-            .collect(Collectors.joining("\n"));
+    // Resolve codes -> text, apply inline tags with base-aware RESET,
+    // then wrap each line with base color and finish with a hard RESET.
+    String out = r.messages().stream()
+        .map(m -> resolve(m.code(), m.args(), loc)) // safe resolve
+        .map(msg -> applyInlineTags(msg, base))     // [[RESET]] -> RESET + base
+        .map(line -> base + line + RESET)           // color each line; end with full reset
+        .collect(Collectors.joining("\n"));
 
-        // Optional: write de-colored line(s) to session.log
-        try {
-            String plain = stripAnsi(out);
-            String ts = TS.format(java.time.Instant.now());
-            String who = Optional.ofNullable(session.getUserId()).orElse("");
-            // One log entry per formatted block
-            Files.writeString(LOG, ts + " | " + who + " | " + plain + System.lineSeparator(),
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (Exception ignore) {}
+    // Optional: write de-colored line(s) to session.log
+    try {
+        String plain = stripAnsi(out);
+        String ts = TS.format(Instant.now());
+        String who = Optional.ofNullable(Global.userId()).orElse("");
+        Files.writeString(LOG, ts + " | " + who + " | " + plain + System.lineSeparator(),
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    } catch (Exception ignore) {}
 
-        return out;
-    }
+    return out;
+}
 
-    private String resolve(String code, Object[] args, Locale loc) {
+
+private String resolve(String code, Object[] args, Locale loc) {
+    try {
+        // Bold args without resetting colors:
+        // Use BOLD_ON (1m) and BOLD_OFF (22m) so we don't lose the base color.
+        final String BOLD_ON  = "\u001B[1m";
+        final String BOLD_OFF = "\u001B[22m";
+
+        Object[] styledArgs = null;
+        if (args != null) {
+            styledArgs = Arrays.stream(args)
+                .map(a -> {
+                    String s = (a == null) ? "" : a.toString();
+                    if (NO_COLOR || s.isEmpty()) return s;
+                    return BOLD_ON + s + BOLD_OFF;
+                })
+                .toArray();
+        }
+
         // If code missing, show ??code??
-        return messages.getMessage(code, args, "??" + code + "??", loc);
+        return messages.getMessage(code, styledArgs, "??" + code + "??", loc);
+    } catch (Exception e) {
+        // Any formatting/parsing error → degrade gracefully
+        return "??" + code + "??";
     }
+}
 
-    /** Replace {TAG} with ANSI codes; unknown tags are ignored (removed). */
-    private String applyInlineTags(String s) {
-        return TAG_PATTERN.matcher(s).replaceAll(match -> TAGS.getOrDefault(match.group(1), ""));
+
+    /** Replace [[TAG]] with ANSI codes; unknown tags removed. Honors NO_COLOR toggle. */
+/** Replace [[TAG]] with ANSI codes; [[RESET]] restores base color. Honors NO_COLOR. */
+private String applyInlineTags(String s, String base) {
+    if (NO_COLOR) {
+        // strip inline tags entirely when NO_COLOR is set
+        return TAG_PATTERN.matcher(s).replaceAll("");
     }
+    return TAG_PATTERN.matcher(s).replaceAll(match -> {
+        String tag = match.group(1);
+        if ("RESET".equals(tag)) {
+            // reset inline styles but immediately restore the base color (GREEN/RED)
+            return RESET + base;
+        }
+        return TAGS.getOrDefault(tag, "");
+    });
+}
 
     private String stripAnsi(String s) {
         return ANSI.matcher(s).replaceAll("");
@@ -169,5 +208,16 @@ public class MessageFormatter {
         } catch (Exception e) {
             return "<unknown>";
         }
+    }
+
+    public static StringBuilder formatLine(String... cols) {
+        // In your real code, this probably handles widths & alignment.
+        // Here we'll join with tabs and add newline for illustration.
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < cols.length; i++) {
+            if (i > 0) sb.append('\t');
+            sb.append(cols[i] == null ? "" : cols[i]);
+        }
+        return sb.append('\n');
     }
 }

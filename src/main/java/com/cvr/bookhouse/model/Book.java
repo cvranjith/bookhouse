@@ -6,7 +6,7 @@ import java.util.List;
 public class Book {
     String bookId;
     int copies;
-    List<String> waitlist = new ArrayList<>();
+    //List<String> waitlist = new ArrayList<>();
     
     public Book(String bookId, int copies) {
         this.bookId = bookId;
@@ -28,7 +28,7 @@ public class Book {
     public void setCopies(int copies) {
         this.copies = copies;
     }
-
+    /*
     public boolean addToWaitlist(String userId) {
         if (userId == null || userId.isBlank()) return false;
         if (waitlist.contains(userId)) return false;
@@ -41,5 +41,5 @@ public class Book {
 
     public List<String> getWaitlist() {
         return waitlist;
-    }
+    }*/
 }

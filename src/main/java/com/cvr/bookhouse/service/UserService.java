@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.cvr.bookhouse.core.Global;
 import com.cvr.bookhouse.model.User;
 
 @Service
@@ -31,5 +32,9 @@ public class UserService {
     }
     public Optional<User> findUser(String userId) {
         return Optional.ofNullable(users.get(userId));
+    }
+    public boolean isAdmin() {
+        return users.get(Global.userId()).getRoles().contains("ADMIN");
+        //return "ADMIN".equalsIgnoreCase(Global.userId());
     }
 }

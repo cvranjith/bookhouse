@@ -59,23 +59,30 @@ public class BookHouseCommands {
     @ShellMethod(key = "waitlist", value = "Join waitlist. Usage: waitlist <bookId>")
         public String waitlist(
             @ShellOption(help = "Book ID") String bookId) {
-        return messageFormatter.format(bookService.joinWaitlist(bookId));
+        return messageFormatter.format(bookService.addToWaitlist(bookId));
     }
 
     @PreAuthorize("isAuthenticated()")
     @ShellMethod(key = "cancel-waitlist", value = "Cancel waitlist. Usage: cancel-waitlist <bookId>")
         public String cancelWaitlist(
             @ShellOption(help = "Book ID") String bookId) {
-        return messageFormatter.format(bookService.cancelWaitlist(bookId));
+        return messageFormatter.format(bookService.removeFromWaitlist(bookId));
     }
     
 
     @PreAuthorize("isAuthenticated()")
-    @ShellMethod(key = "status", value = "Print Loan Status Usage: status [<userId>]")
+    @ShellMethod(key = "status", value = "Print Loan Status. Usage: status [<userId>]")
         public String status(
             @ShellOption(help = "User ID", defaultValue = "") String userId) {
         return messageFormatter.format(bookService.status(userId));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @ShellMethod(key = "waitlist-status", value = "Print Waitlist Status. Usage: waitlist-status [<userId>]")
+        public String waitListStatus(
+            @ShellOption(help = "User ID", defaultValue = "") String userId) {
+        return messageFormatter.format(bookService.waitlistStatus(userId));
+    }
+    
     
 }
