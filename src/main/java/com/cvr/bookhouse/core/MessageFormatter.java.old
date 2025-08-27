@@ -1,0 +1,169 @@
+// core/MessageFormatter.java
+package com.cvr.bookhouse.core;
+
+import org.jline.reader.LineReader;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.stereotype.Component;
+
+import com.cvr.bookhouse.model.Session;
+
+import java.nio.file.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+@Component
+public class MessageFormatter {
+    // Base colors
+    private static final String RESET = "\u001B[0m";
+    private static final String RED   = "\u001B[31m";
+    private static final String GREEN = "\u001B[32m";
+
+    // Inline style/color tags usable in messages.properties (now with [[TAG]] syntax)
+    private static final Map<String, String> TAGS = Map.ofEntries(
+        Map.entry("RESET",  "\u001B[0m"),
+        Map.entry("BOLD",   "\u001B[1m"),
+        Map.entry("DIM",    "\u001B[2m"),
+        Map.entry("UNDER",  "\u001B[4m"),
+        Map.entry("BLINK",  "\u001B[5m"),
+        Map.entry("REV",    "\u001B[7m"),
+        Map.entry("BLACK",  "\u001B[30m"),
+        Map.entry("RED",    "\u001B[31m"),
+        Map.entry("GREEN",  "\u001B[32m"),
+        Map.entry("YELLOW", "\u001B[33m"),
+        Map.entry("BLUE",   "\u001B[34m"),
+        Map.entry("MAGENTA","\u001B[35m"),
+        Map.entry("CYAN",   "\u001B[36m"),
+        Map.entry("WHITE",  "\u001B[37m")
+    );
+
+    // IMPORTANT: use [[TAG]] to avoid MessageFormat conflicts with {0}, {1}, ...
+    private static final Pattern TAG_PATTERN = Pattern.compile("\\[\\[([A-Z_]+)\\]\\]");
+
+    // logging (optional)
+    private static final Path LOG = Paths.get("session.log");
+    private static final DateTimeFormatter TS =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+    private static final Pattern ANSI = Pattern.compile("\u001B\\[[;\\d]*m");
+
+    private final ObjectProvider<LineReader> lineReaderProvider; // lazy
+    private final Session session;
+    private final MessageSource messages;
+
+    // Optional: allow disabling color via env var NO_COLOR=true
+    private static final boolean NO_COLOR = Boolean.parseBoolean(System.getenv().getOrDefault("NO_COLOR", "false"));
+
+    public MessageFormatter(ObjectProvider<LineReader> lineReaderProvider,
+                            Session session,
+                            MessageSource messages) {
+        this.lineReaderProvider = lineReaderProvider;
+        this.session = session;
+        this.messages = messages;
+    }
+
+    /** Format a multi-part Result, colorizing each line based on ok/error and supporting inline tags. */
+    public String format(Result r) {
+        final var loc = LocaleContextHolder.getLocale();
+        final String base = (NO_COLOR ? "" : (r.ok() ? GREEN : RED));
+        final String reset = (NO_COLOR ? "" : RESET);
+
+        // Resolve codes -> text, apply inline tags, wrap each line with base color + RESET
+        String out = r.messages().stream()
+            .map(m -> resolve(m.code(), m.args(), loc)) // safe resolve (won't throw)
+            .map(this::applyInlineTags)                 // replace [[TAG]] with ANSI (or nothing if NO_COLOR)
+            .map(line -> base + line + reset)           // line-level color with reset at end
+            .collect(Collectors.joining("\n"));
+
+        // Optional: write de-colored line(s) to session.log
+        try {
+            String plain = stripAnsi(out);
+            String ts = TS.format(Instant.now());
+            String who = Optional.ofNullable(session.getUserId()).orElse("");
+            Files.writeString(LOG, ts + " | " + who + " | " + plain + System.lineSeparator(),
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (Exception ignore) {}
+
+        return out;
+    }
+
+    private String resolve(String code, Object[] args, Locale loc) {
+        try {
+            // If code missing, show ??code??
+            return messages.getMessage(code, args, "??" + code + "??", loc);
+        } catch (Exception e) {
+            // Parsing error (e.g., malformed {n}) → degrade gracefully
+            return "??" + code + "??";
+        }
+    }
+
+    /** Replace [[TAG]] with ANSI codes; unknown tags removed. Honors NO_COLOR toggle. */
+    private String applyInlineTags(String s) {
+        if (NO_COLOR) {
+            // strip inline tags entirely when NO_COLOR is set
+            return TAG_PATTERN.matcher(s).replaceAll("");
+        }
+        return TAG_PATTERN.matcher(s).replaceAll(match -> TAGS.getOrDefault(match.group(1), ""));
+    }
+
+    private String stripAnsi(String s) {
+        return ANSI.matcher(s).replaceAll("");
+    }
+
+    public static String formatDateTime(Instant dateTime) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                                .withZone(ZoneId.systemDefault())
+                                .format(dateTime);
+    }
+
+    // ---- Simple padding helpers (with truncation + ellipsis) ----
+
+    private static String pad(String s, int n, boolean left, String padChar) {
+        if (s == null) s = "";
+        if (padChar == null || padChar.isEmpty()) padChar = " ";
+
+        // truncate with ellipsis if too long
+        if (n >= 3 && s.length() > (n - 3)) {
+            s = s.substring(0, n - 3) + "...";
+        } else if (s.length() > n) {
+            s = s.substring(0, n);
+        }
+
+        int padLen = Math.max(0, n - s.length());
+        String filler = padChar.repeat(padLen);
+
+        return left ? filler + s : s + filler;
+    }
+
+    private static String lpad(String s, int n, String padChar) {
+        return pad(s, n, true, padChar);
+    }
+
+    private static String rpad(String s, int n, String padChar) {
+        return pad(s, n, false, padChar);
+    }
+
+    public static StringBuilder formatLine(String sl, String bookId, String tot, String avl, String padChar){
+        StringBuilder sb = new StringBuilder();
+        sb.append(lpad(sl, 5, padChar)).append(" | ")
+          .append(rpad(bookId, 40, padChar)).append(" | ")
+          .append(lpad(tot, 20, padChar)).append(" | ")
+          .append(lpad(avl, 20, padChar)).append("\n");
+        return sb;
+    }
+
+    private String lastCommand() {
+        try {
+            LineReader lr = lineReaderProvider.getIfAvailable();
+            if (lr == null || lr.getHistory() == null || lr.getHistory().size() == 0) return "<unknown>";
+            return lr.getHistory().get(lr.getHistory().size() - 1).toString();
+        } catch (Exception e) {
+            return "<unknown>";
+        }
+    }
+}

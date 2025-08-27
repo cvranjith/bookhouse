@@ -1,5 +1,6 @@
 package com.cvr.bookhouse.commands;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -18,6 +19,7 @@ public class AdminCommands {
         this.messageFormatter = messageFormatter;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ShellMethod(key = "add-book", value = "Add a book. Usage: add-book <bookId> [--copies <n>]")
         public String addBook(
             @ShellOption(help = "Book id") String bookId,

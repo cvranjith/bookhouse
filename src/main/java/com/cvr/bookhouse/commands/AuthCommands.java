@@ -1,5 +1,6 @@
 package com.cvr.bookhouse.commands;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -22,6 +23,9 @@ public class AuthCommands {
     public String login(@ShellOption(help = "User id") String userId) {
         return messageFormatter.format(authService.login(userId));
     }
+
+    
+    @PreAuthorize("isAuthenticated()")
     @ShellMethod(key = "logout", value = "Logout the current user.")
     public String logout() {
         return messageFormatter.format(authService.logout());
