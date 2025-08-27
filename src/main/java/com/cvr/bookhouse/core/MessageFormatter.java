@@ -1,11 +1,8 @@
-// core/MessageFormatter.java
 package com.cvr.bookhouse.core;
 
 import org.jline.reader.LineReader;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
-
-//import com.cvr.bookhouse.model.Session;
 
 import java.nio.file.*;
 import java.time.Instant;
@@ -20,12 +17,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class MessageFormatter {
-    // Base colors
     private static final String RESET = "\u001B[0m";
     private static final String RED   = "\u001B[31m";
     private static final String GREEN = "\u001B[32m";
-
-    // Inline style/color tags usable in messages.properties (now with [[TAG]] syntax)
     private static final Map<String, String> TAGS = Map.ofEntries(
         Map.entry("RESET",  "\u001B[0m"),
         Map.entry("BOLD",   "\u001B[1m"),
@@ -43,10 +37,8 @@ public class MessageFormatter {
         Map.entry("WHITE",  "\u001B[37m")
     );
 
-    // IMPORTANT: use [[TAG]] to avoid MessageFormat conflicts with {0}, {1}, ...
     private static final Pattern TAG_PATTERN = Pattern.compile("\\[\\[([A-Z_]+)\\]\\]");
 
-    // logging (optional)
     private static final Path LOG = Paths.get("session.log");
     private static final DateTimeFormatter TS =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());

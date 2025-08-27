@@ -18,7 +18,6 @@ import com.cvr.bookhouse.core.PrintUtil;
 import com.cvr.bookhouse.core.Result;
 import com.cvr.bookhouse.model.Book;
 import com.cvr.bookhouse.model.Loan;
-//import com.cvr.bookhouse.model.Session;
 import com.cvr.bookhouse.model.Waitlist;
 
 @Service
@@ -32,21 +31,11 @@ public class BookService {
     private long waitlistReferenceNumber = 0;
 
     private final UserService userService;
-    //private final Session session;
-    //private final LoanService loanService;
-
-    /*public BookService(Session session, UserService users) {
-        this.session = session;
-    }*/
 
     public BookService(UserService userService)
     {
         this.userService=userService;
     }
-        //Session session){//},LoanService loanService) {
-        //this.session = session;
-        //this.loanService =loanService;
-    //}
 
     public Book getBook(String bookId){
         return books.get(bookId);
@@ -62,8 +51,6 @@ public class BookService {
             .add("available.copies",b.getCopies());
     }
     public Result list(String bookId) {
-        //Result adminCheck = isUserAdmin();
-        //if (!adminCheck.ok()) return adminCheck;
 
         List<Book> items;
         if (bookId == null || bookId.isBlank()) {
@@ -85,10 +72,6 @@ public class BookService {
         return Result.success() // ok(renderBooksTable(items));
             .add("table",renderBooksTable(items));
     }
-
-private int availableCopies(Book book) {
-    return book.getCopies()- (borrowedCount(book.getBookId()));
-}
 
     public int borrowedCount(String bookId) {
         long cnt = loans.values().stream()
@@ -167,22 +150,12 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
         if (book==null){
             return Result.failure().add("invalid.book",bookId); //error("Invalid BookId "+bookId);
         }
-        /*if (book.getCopies()<= borrowedCount(bookId)){
-            return Result.failure().add("book.unavailable",bookId);//("Book is not available. Please waitlist if you want.");
-        }*/
 
         Result gate = checkBorrowGate(bookId, Global.userId(), book);
         if (gate != null) return gate; // BLOCK here if queue has priority
 
         List<Msg> msgs = new ArrayList<>();
-    
 
-        /*
-        if (book.getWaitlist().contains(Global.userId())) {
-            book.cancelWaitlist(Global.userId());
-            msgs.add(new Msg("waitlist.removed",bookId));
-        }*/
-        //TODO
 
         if (removeFromWaitlistIfPresent(bookId, Global.userId())) {
             msgs.add(new Msg("waitlist.removed", bookId));
@@ -196,22 +169,9 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
         msgs.add(new Msg("borrow.success",bookId,borrowedDate));
         msgs.add(new Msg("loan.reference",loanId));
         return Result.success(msgs);
-        //return Result.ok("Successuflly borrowed the book \""+bookId+"\" at "+MessageFormatter.formatDateTime(borrowedDate)+".\n"
-        //+ " Loan Reference "+loanId);
     }
 
-    /*public Result cancelWaitlist(String bookId){
-        Book book=getBook(bookId);
-        if (book==null){
-            return Result.failure().add("invalid.book",bookId); //error("Invalid BookId "+bookId);
-        }
-        if (!book.getWaitlist().contains(Global.userId())) {
-            return Result.failure().add("not.waitlisted",bookId);
-        } else {
-            book.cancelWaitlist(Global.userId());
-            return Result.success().add("waitlist.removed",bookId);
-        }
-    }*/
+
     public Result returnBook(String bookId, String loanId) {
          if ((loanId == null || loanId.isBlank()) && (bookId == null || bookId.isBlank())) {
             return Result.failure() //error("Please provide <loanId> or a <bookId>.");
@@ -269,49 +229,6 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
             .add("return.success",bookIdCopy,loanId);
     }
 
-    /*
-    public Result joinWaitlist(String bookId) {
-        Book book = getBook(bookId);
-        if (book==null){
-            return Result.failure()
-                .add("invalid.book", bookId);            
-        }
-        if (book.getWaitlist().contains(Global.userId())) {
-            return Result.failure()
-                .add("already.waitlisted", bookId);
-        }
-
-        int position=book.getWaitlist().size()+1;
-        boolean added = book.addToWaitlist(Global.userId());
-        if (added) {
-            List<Msg> msgs = new ArrayList<>();
-            msgs.add(new Msg("waitlist.success",bookId,position));
-            int availableCopies=availableCopies(book);
-            if (availableCopies>0){
-                msgs.add(new Msg("book.available",bookId,position));
-            }
-            return Result.success(msgs);
-
-        } else {
-            return Result.success()
-                .add("waitlist.error",bookId);
-        }
-    }
-*/
-/*public int getWaitlistPosition(String bookId, String userId) {
-    // collect all waitlist entries for this book, sorted by id (FIFO)
-    List<Waitlist> entries = waitlists.values().stream()
-        .filter(w -> Objects.equals(w.getBookId(), bookId))
-        .sorted(Comparator.comparingLong(Waitlist::getId))
-        .toList();
-
-    for (int i = 0; i < entries.size(); i++) {
-        if (Objects.equals(entries.get(i).getUserId(), userId)) {
-            return (i + 1); // 1-based
-        }
-    }
-    return -1;
-}*/
     public Result addToWaitlist(String bookId){//, String userId) {
 
         Book book=getBook(bookId);
@@ -345,9 +262,6 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
         return Result.success();
     }
 
-    //private boolean isAdmin() {
-    //    return "ADMIN".equalsIgnoreCase(Global.userId());
-    //}
 
     private String resolveUserFilter(String requestedUserId, boolean isAdmin) {
         if (isAdmin) {
@@ -427,74 +341,6 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
             .add("table", table);
     }
 
-
-/*public Result waitlistStatusOld(String userId){
-    final boolean isAdmin = userService.isAdmin();
-    if (!isAdmin && userId != null && !userId.isBlank() 
-            && !Objects.equals(userId, Global.userId())) {
-        return Result.failure().add("not.authorized");
-    }
-    final String queryUser = resolveUserFilter(userId, isAdmin);
-    
-    // Query books table where the waitlisted user is available
-    List<WaitlistEntry> filtered = books.values().stream()
-        .filter(book -> book.getWaitlist() != null && !book.getWaitlist().isEmpty())
-        .flatMap(book -> book.getWaitlist().stream()
-            .filter(waitlistedUserId -> wildcardMatch(waitlistedUserId, queryUser))
-            .map(waitlistedUserId -> new WaitlistEntry(
-                book.getBookId(), 
-                waitlistedUserId, 
-                book.getWaitlist().indexOf(waitlistedUserId) + 1//, // position in waitlist (1-based)
-                //book.getTitle(), // assuming you have a title field
-                //book.getCopies()
-            )))
-        .sorted(Comparator
-        .comparing(WaitlistEntry::getBookId, Comparator.nullsFirst(String::compareTo))
-        .thenComparingInt(WaitlistEntry::getPosition)
-        .thenComparing(WaitlistEntry::getUserId, Comparator.nullsFirst(String::compareTo))
-        )
-        .collect(Collectors.toList());
-    
-    String table = renderWaitlistTableOld(filtered);
-    
-    return Result.success()
-        .add("table",table);
-}*/
-
-// Helper class to represent waitlist entries for display
-private static class WaitlistEntry {
-    private String bookId;
-    private String userId;
-    private int position;
-    //private int totalCopies;
-    
-    public WaitlistEntry(String bookId, String userId, int position) {
-        this.bookId = bookId;
-        this.userId = userId;
-        this.position = position;
-        //this.totalCopies = totalCopies;
-    }
-    
-    // Getters
-    public String getBookId() { return bookId; }
-    public String getUserId() { return userId; }
-    public int getPosition() { return position; }
-    //public int getTotalCopies() { return totalCopies; }
-}
-private String renderWaitlistTableOld(List<WaitlistEntry> items) {
-    if (items == null || items.isEmpty()) return "(no waitlist)";
-
-    return PrintUtil.renderTable(
-        List.of("User", "Book Id", "Position"),
-        items,
-        w -> List.of(
-            nvl(w.getUserId()),
-            nvl(w.getBookId()),
-            String.valueOf(w.getPosition())
-        )
-    );
-}
-
 public Result waitlistStatus(String userId) {
         final boolean isAdmin = userService.isAdmin();
         if (!isAdmin && userId != null && !userId.isBlank()
@@ -508,7 +354,7 @@ public Result waitlistStatus(String userId) {
             .filter(w -> wildcardMatch(w.getUserId(), queryUser))
             .sorted(Comparator
                 .comparing(Waitlist::getBookId, Comparator.nullsFirst(String::compareTo))
-                .thenComparingLong(Waitlist::getId))   // position comes from id order
+                .thenComparingLong(Waitlist::getId))
             .toList();
 
         String table = renderWaitlistTable(filtered);
@@ -517,25 +363,17 @@ public Result waitlistStatus(String userId) {
 
     private String renderWaitlistTable(List<Waitlist> items) {
         if (items == null || items.isEmpty()) return "(no waitlist)";
-
-        // compute per-book positions as we go
-        Map<String, Integer> counters = new HashMap<>();
         return PrintUtil.renderTable(
             List.of("User", "Book Id", "Position", "Added On"),
             items,
             w -> {
-                int pos = counters.merge(w.getBookId(), 1, Integer::sum);
                 return List.of(
                     nvl(w.getUserId()),
                     nvl(w.getBookId()),
-                    //String.valueOf(pos),
-                    //String.valueOf(getWaitlistPosition(w.getBookId(), w.getUserId())),
                     String.valueOf(getWaitlistPosition(w.getBookId(), w.getUserId()).orElse(-1)),
                     java.time.format.DateTimeFormatter.ISO_INSTANT.format(w.getCreatedAt())
                 );
             }
         );
     }
-
-    //private static String nvl(String s) { return s == null ? "" : s; }
 }
