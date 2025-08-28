@@ -681,8 +681,8 @@ logging.logback.rollingpolicy.total-size-cap=1GB
 
 ## 8. Logs & Audit
 
-- **Application log** (e.g., `logs/bookhouse.log`): Operational messages and errors.  
-- **Audit log** (e.g., `logs/session.log`): Each command execution with timestamp, user, command, status, and summary.  
+- **Application log** (e.g., `./bookhouse.log`): Operational messages and errors.  
+- **Audit log** (e.g., `./audit.log`): Each command execution with timestamp, user, command, status, and summary.  
 - Logs are file-based to keep the shell output clean; they can be shipped to external log systems if needed.
 
 **Example log entries (paste real snippets):**
@@ -757,7 +757,7 @@ If you encounter any issues while using **Bookhouse CLI**, or have suggestions f
 When reporting an issue, please include:
 - The command you were running  
 - The exact error message or unexpected behavior
-- Relevant excerpts from `logs/bookhouse.log` or `logs/session.log`
+- Relevant excerpts from `./bookhouse.log` or `./session.log` or `./audit.log`
 
 ---
 **Happy reading and have a smooth run with Bookhouse!**

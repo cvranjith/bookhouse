@@ -43,6 +43,7 @@ out/
 
 ### Logs / Temp ###
 *.log
+*.log.*.bak
 *.tmp
 *.swp
 hs_err_pid*

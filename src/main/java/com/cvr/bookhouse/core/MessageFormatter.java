@@ -38,7 +38,7 @@ public class MessageFormatter {
 
     private static final Pattern TAG_PATTERN = Pattern.compile("\\[\\[([A-Z_]+)\\]\\]");
 
-    private static final Path LOG = Paths.get("session.log");
+    private static final Path LOG = Paths.get("audit.log");
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
     private static final Pattern ANSI = Pattern.compile("\u001B\\[[;\\d]*m");
