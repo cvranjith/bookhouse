@@ -44,7 +44,7 @@ public class MessageFormatter {
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final Pattern ANSI = Pattern.compile("\u001B\\[[;\\d]*m");
 
-    private final ObjectProvider<LineReader> lineReaderProvider; // lazy
+    //private final ObjectProvider<LineReader> lineReaderProvider; // lazy
     //private final Session session;
     private final MessageSource messages;
 
@@ -54,7 +54,7 @@ public class MessageFormatter {
     public MessageFormatter(ObjectProvider<LineReader> lineReaderProvider,
                             //Session session,
                             MessageSource messages) {
-        this.lineReaderProvider = lineReaderProvider;
+        //this.lineReaderProvider = lineReaderProvider;
         //this.session = session;
         this.messages = messages;
     }

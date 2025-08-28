@@ -154,7 +154,7 @@ private Result canBorrow(String bookId, String userId, Book book) {
         }
 
         Result gate = canBorrow(bookId, Global.userId(), book);
-        if (gate != null) return gate;
+        if (gate != null) return gate; // BLOCK here if queue has priority
 
         List<Msg> msgs = new ArrayList<>();
 

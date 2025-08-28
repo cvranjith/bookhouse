@@ -31,7 +31,7 @@ public class AuthServiceTest {
     @AfterEach
     void tearDown() {
     if (!Global.userId().isEmpty()) {
-        var r = auth.logout();
+        auth.logout();
     }
     }
 
@@ -39,12 +39,16 @@ public class AuthServiceTest {
     return r.messages().stream().map(Msg::code).toList();
   }
 
+    private final String ADMIN="admin";
+    private final String ADMIN2="admin2";
+    private final String USER1="user1";
+    private final String USER2="user2";
 
   @Test
 void testFirstLogin() {
-    var r = auth.login("cv");
+    var r = auth.login(USER1);
     assertTrue(r.ok());
-    assertEquals("cv", Global.userId());
+    assertEquals(USER1, Global.userId());
     var codes = codes(r);
     assertTrue(codes.contains("login.success"));
     assertTrue(codes.contains("login.first"));
@@ -53,12 +57,12 @@ void testFirstLogin() {
 @Test
   void testReLogin() {
 
-    assertTrue(auth.login("cv").ok());
+    assertTrue(auth.login(USER1).ok());
     
-    var r = auth.login("cv");
+    Result r = auth.login(USER1);
 
     assertFalse(r.ok());
-    assertEquals("cv", Global.userId());
+    assertEquals(USER1, Global.userId());
 
     var codes = codes(r);
     assertTrue(codes.contains("already.loggedin"));
@@ -66,23 +70,37 @@ void testFirstLogin() {
   }
 
   @Test
-  void testReLoginNewUser() {
-    assertTrue(auth.login("cv").ok());
+  void testAdminLogin() {
+    Result r = auth.login(ADMIN);
+    assertTrue(r.ok());
+    var codes = codes(r);
+    assertTrue(codes.contains("admin.login"));
 
-    var r = auth.login("cv2");
+    r = auth.login(ADMIN2);
+    assertTrue(r.ok());
+    codes = codes(r);
+    assertTrue(codes.contains("admin.login"));
+    
+  }
+
+  @Test
+  void testReLoginNewUser() {
+    assertTrue(auth.login(USER1).ok());
+
+    var r = auth.login(USER2);
 
     assertTrue(r.ok());
-    assertEquals("cv2", Global.userId());
+    assertEquals(USER2, Global.userId());
     assertTrue(codes(r).contains("login.success"));
   }
 
   
   @Test
   void testReLoginSameUser() {
-    assertTrue(auth.login("cv").ok());
-    assertTrue(auth.login("cv2").ok());
+    assertTrue(auth.login(USER1).ok());
+    assertTrue(auth.login(USER2).ok());
 
-    var r = auth.login("cv");
+    var r = auth.login(USER1);
 
     assertTrue(r.ok());
 
@@ -93,8 +111,8 @@ void testFirstLogin() {
 
   @Test
   void testLogout() {
-    auth.login("cv");
-    assertEquals("cv", Global.userId());
+    auth.login(USER1);
+    assertEquals(USER1, Global.userId());
 
     var r = auth.logout();
 

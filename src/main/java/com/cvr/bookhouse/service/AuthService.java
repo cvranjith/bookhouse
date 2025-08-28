@@ -34,9 +34,8 @@ public class AuthService {
         this.userService=userService;
     }
     private boolean isLoggedIn() {   
-        //return !userId.isEmpty();
-        //TODO***
-        return true;//!session.getUserId().isEmpty();
+        String uid = Global.userId();
+        return uid != null && !uid.isBlank();
     }
     /*private Authentication current() {
         return SecurityContextHolder.getContext().getAuthentication();
