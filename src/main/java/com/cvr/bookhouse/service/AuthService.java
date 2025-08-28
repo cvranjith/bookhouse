@@ -75,6 +75,13 @@ public class AuthService {
         }
         Result status=bookService.status(Global.userId());
         msgs.addAll(status.messages());
+
+        Result avilableBooks = bookService.areBooksAvailableNow(Global.userId()) ;//.messages().isEmpty()
+        if (!avilableBooks.messages().isEmpty()){
+            msgs.add(new Msg("books.available.now"));
+            msgs.addAll(avilableBooks.messages());
+        }
+
         return Result.success(msgs);
     }
 

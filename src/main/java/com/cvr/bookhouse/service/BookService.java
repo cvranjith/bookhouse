@@ -2,7 +2,6 @@ package com.cvr.bookhouse.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -119,7 +118,7 @@ public OptionalInt getWaitlistPosition(String bookId, String userId) {
 }
 
 /** Null means allowed; non-null is the failure Result to return */
-private Result checkBorrowGate(String bookId, String userId, Book book) {
+private Result canBorrow(String bookId, String userId, Book book) {
     int copies = book.getCopies();
     int borrowed = borrowedCount(bookId);
     int available = copies - borrowed;                // e.g., 1 - 0 = 1
@@ -154,8 +153,8 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
             return Result.failure().add("invalid.book",bookId); //error("Invalid BookId "+bookId);
         }
 
-        Result gate = checkBorrowGate(bookId, Global.userId(), book);
-        if (gate != null) return gate; // BLOCK here if queue has priority
+        Result gate = canBorrow(bookId, Global.userId(), book);
+        if (gate != null) return gate;
 
         List<Msg> msgs = new ArrayList<>();
 
@@ -250,7 +249,15 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
         Waitlist w = new Waitlist(id, bookId, Global.userId(), java.time.Instant.now());
         waitlists.put(id, w);
         int position=getWaitlistPosition(bookId, Global.userId()).orElse(-1);
-        return Result.success().add("waitlist.success", bookId,position);
+        List<Msg> msgs = new ArrayList<>();
+        msgs.add(new Msg("waitlist.success", bookId,position));
+
+        Result avilableBooks = areBooksAvailableNow(Global.userId());
+        if (!avilableBooks.messages().isEmpty()){
+            msgs.add(new Msg("books.available.now"));
+            msgs.addAll(avilableBooks.messages());
+        }
+        return Result.success(msgs);
     }
     public Result removeFromWaitlist(String bookId) {
         Long toRemove = waitlists.entrySet().stream()
@@ -326,9 +333,9 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
 
         List<Msg> msgs = new ArrayList<>();
 
-        msgs.add(new Msg("table", "[[MAGENTA]] Loan Status: [[RESET]]"));
+        msgs.add(new Msg("loan.status"));
         msgs.addAll(loanStatus.messages());
-        msgs.add(new Msg("table", "[[MAGENTA]] Waitlist Status: [[RESET]]"));
+        msgs.add(new Msg("waitlist.status"));
         msgs.addAll(waitlistStatus.messages());
         
         return Result.success(msgs);
@@ -424,8 +431,5 @@ public Result areBooksAvailableNow(String userId) {
     }
 
     return Result.success(msgs);//.add("msgs", msgs);
-}
-public boolean anyBooksAvailableNow(String userId) {
-    return !areBooksAvailableNow(userId).messages().isEmpty();
 }
 }
