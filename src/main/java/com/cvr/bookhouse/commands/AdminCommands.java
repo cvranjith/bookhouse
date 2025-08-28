@@ -21,10 +21,10 @@ public class AdminCommands {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ShellMethod(key = "add-book", value = "Add a book. Usage: add-book <bookId> [--copies <n>]")
-        public String addBook(
+    public String addBook(
             @ShellOption(help = "Book id") String bookId,
             @ShellOption(help = "Number of copies", defaultValue = "1") Integer copies) {
-        return messageFormatter.format(bookService.addBook(bookId,copies));
+        return messageFormatter.format(bookService.addBook(bookId, copies));
     }
 
 }

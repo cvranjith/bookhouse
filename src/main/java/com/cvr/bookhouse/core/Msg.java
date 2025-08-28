@@ -1,3 +1,4 @@
 package com.cvr.bookhouse.core;
 
-public record Msg(String code, Object... args) {}
+public record Msg(String code, Object... args) {
+}

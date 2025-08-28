@@ -1,5 +1,7 @@
 package com.cvr.bookhouse.model;
+
 import java.time.Instant;
+
 public class Waitlist {
     long id;
     String bookId;
@@ -13,9 +15,19 @@ public class Waitlist {
         this.createdAt = createdAt;
     }
 
-    public long getId() { return id; }
-    public String getBookId() { return bookId; }
-    public String getUserId() { return userId; }
-    public Instant getCreatedAt() { return createdAt; }
-}
+    public long getId() {
+        return id;
+    }
 
+    public String getBookId() {
+        return bookId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+}

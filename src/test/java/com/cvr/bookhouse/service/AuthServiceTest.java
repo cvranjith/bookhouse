@@ -20,48 +20,46 @@ public class AuthServiceTest {
 
   private AuthService auth;
 
-    private final String ADMIN="admin";
-    private final String ADMIN2="admin2";
-    private final String USER1="user1";
-    private final String USER2="user2";
-    
+  private final String ADMIN = "admin";
+  private final String ADMIN2 = "admin2";
+  private final String USER1 = "user1";
+  private final String USER2 = "user2";
+
   @BeforeEach
   void setup() {
-    AuthenticationManager authenticationManager = authentication ->
-        new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), null, List.of());
-    UserService userService = new UserService();       // uses your in-memory map/array
+    AuthenticationManager authenticationManager = authentication -> new UsernamePasswordAuthenticationToken(
+        authentication.getPrincipal(), null, List.of());
+    UserService userService = new UserService();
     BookService bookService = new BookService(userService);
     auth = new AuthService(authenticationManager, bookService, userService);
   }
 
-    @AfterEach
-    void tearDown() {
+  @AfterEach
+  void tearDown() {
     if (!Global.userId().isEmpty()) {
-        auth.logout();
+      auth.logout();
     }
-    }
+  }
 
   private static List<String> codes(Result r) {
     return r.messages().stream().map(Msg::code).toList();
   }
 
-
-
   @Test
-void testFirstLogin() {
+  void testFirstLogin() {
     var r = auth.login(USER1);
     assertTrue(r.ok());
     assertEquals(USER1, Global.userId());
     var codes = codes(r);
     assertTrue(codes.contains("login.success"));
     assertTrue(codes.contains("login.first"));
-}
+  }
 
-@Test
+  @Test
   void testReLogin() {
 
     assertTrue(auth.login(USER1).ok());
-    
+
     Result r = auth.login(USER1);
 
     assertFalse(r.ok());
@@ -69,7 +67,7 @@ void testFirstLogin() {
 
     var codes = codes(r);
     assertTrue(codes.contains("already.loggedin"));
-    
+
   }
 
   @Test
@@ -83,7 +81,7 @@ void testFirstLogin() {
     assertTrue(r.ok());
     codes = codes(r);
     assertTrue(codes.contains("admin.login"));
-    
+
   }
 
   @Test
@@ -97,7 +95,6 @@ void testFirstLogin() {
     assertTrue(codes(r).contains("login.success"));
   }
 
-  
   @Test
   void testReLoginSameUser() {
     assertTrue(auth.login(USER1).ok());

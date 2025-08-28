@@ -8,7 +8,7 @@ public class Loan {
     String userId;
     Instant borrowedDate;
 
-    public Loan(String id, String bookId, String userId,Instant borrowedDate) {
+    public Loan(String id, String bookId, String userId, Instant borrowedDate) {
         this.id = id;
         this.bookId = bookId;
         this.userId = userId;
@@ -46,5 +46,5 @@ public class Loan {
     public void setId(String id) {
         this.id = id;
     }
-    
+
 }

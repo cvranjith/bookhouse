@@ -13,18 +13,32 @@ public final class Result {
         this.msgs = msgs;
     }
 
-    public static Result success() { return new Result(true, new ArrayList<>()); }
-    public static Result failure() { return new Result(false, new ArrayList<>()); }
+    public static Result success() {
+        return new Result(true, new ArrayList<>());
+    }
 
-    public static Result success(List<Msg> msgs) { return new Result(true, new ArrayList<>(msgs)); }
-    public static Result failure(List<Msg> msgs) { return new Result(false, new ArrayList<>(msgs)); }
+    public static Result failure() {
+        return new Result(false, new ArrayList<>());
+    }
+
+    public static Result success(List<Msg> msgs) {
+        return new Result(true, new ArrayList<>(msgs));
+    }
+
+    public static Result failure(List<Msg> msgs) {
+        return new Result(false, new ArrayList<>(msgs));
+    }
 
     public Result add(String code, Object... args) {
         msgs.add(new Msg(code, args));
         return this;
     }
 
-    public boolean ok() { return ok; }
+    public boolean ok() {
+        return ok;
+    }
 
-    public List<Msg> messages() { return Collections.unmodifiableList(msgs); }
+    public List<Msg> messages() {
+        return Collections.unmodifiableList(msgs);
+    }
 }

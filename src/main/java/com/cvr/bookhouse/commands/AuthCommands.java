@@ -19,12 +19,11 @@ public class AuthCommands {
         this.messageFormatter = messageFormatter;
     }
 
-    @ShellMethod(key = "login",value = "Login with a user id. Usage: login <userId>")
+    @ShellMethod(key = "login", value = "Login with a user id. Usage: login <userId>")
     public String login(@ShellOption(help = "User id") String userId) {
         return messageFormatter.format(authService.login(userId));
     }
 
-    
     @PreAuthorize("isAuthenticated()")
     @ShellMethod(key = "logout", value = "Logout the current user.")
     public String logout() {

@@ -26,18 +26,18 @@ public class UserServiceTest {
     }
 
     @Test
-        void testUpdateLoginDate() throws InterruptedException {
-            UserService svc = new UserService();
-            User u = svc.upsertUser("cv");
-            Instant firstlLastLoginDate = u.getLastLoginDate();
-            assertNull(firstlLastLoginDate, "lastLoginDate should be null at start");
-            svc.updateLoginDate("cv");
-            Instant secondLastLoginDate = svc.findUser("cv").orElseThrow().getLastLoginDate();
-            assertNotNull(secondLastLoginDate);
-            Thread.sleep(10);
-            svc.updateLoginDate("cv");
-            Instant thirdLastLoginDate = svc.findUser("cv").orElseThrow().getLastLoginDate();
-            assertTrue(thirdLastLoginDate.isAfter(secondLastLoginDate),
+    void testUpdateLoginDate() throws InterruptedException {
+        UserService svc = new UserService();
+        User u = svc.upsertUser("cv");
+        Instant firstlLastLoginDate = u.getLastLoginDate();
+        assertNull(firstlLastLoginDate, "lastLoginDate should be null at start");
+        svc.updateLoginDate("cv");
+        Instant secondLastLoginDate = svc.findUser("cv").orElseThrow().getLastLoginDate();
+        assertNotNull(secondLastLoginDate);
+        Thread.sleep(10);
+        svc.updateLoginDate("cv");
+        Instant thirdLastLoginDate = svc.findUser("cv").orElseThrow().getLastLoginDate();
+        assertTrue(thirdLastLoginDate.isAfter(secondLastLoginDate),
                 "lastLoginDate should move forward");
     }
 
