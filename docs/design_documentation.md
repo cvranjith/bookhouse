@@ -424,7 +424,7 @@ java -jar target/bookhouse-0.0.1-SNAPSHOT.jar --mcp
 - [x] RBAC with Spring Security; annotation-driven checks.  
 - [x] Externalized messages; banner branding.  
 - [x] Unit tests for core services & flows; `Result` asserts.  
-- [x] Integration test harness (`test/cli/integration-test.sh`).
+- [x] Integration test (`sh src/test/cli/integration-test.sh`).
 - [x] Reports framework (tabular, wildcards, RBAC-aware).  
 - [x] MCP/LLM placeholder command.  
 - [x] User Manual added to repo.

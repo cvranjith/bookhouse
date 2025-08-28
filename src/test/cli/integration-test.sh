@@ -54,8 +54,8 @@ expected_output() {
 
 echo "=== Starting Assertions ==="
 expected_output "Welcome, admin! You are now logged In"
-expected_output "Added 1 copy(ies) of Book \"test\""
-expected_output "Added 1 copy(ies) of Book \"Autobiography of Ranjith\""
+expected_output "Added 1 cop(y|ies) of Book \"test\""
+expected_output "Added 1 cop(y|ies) of Book \"Autobiography of Ranjith\""
 expected_output "Welcome, user! You are now logged In"
 expected_output "Succesfully joined the waitlist for book \"test\". Your position is 1"
 expected_output "Successuflly borrowed the book \"test\""
