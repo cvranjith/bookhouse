@@ -25,11 +25,13 @@ public class SecurityConfig {
         .map(UserPrincipal::new)
         .orElseThrow(() -> new UsernameNotFoundException(username));
   }
+  
+  
+  @SuppressWarnings("deprecation")
   @Bean
-  public AuthenticationManager authenticationManager(UserDetailsService uds) {
+    public AuthenticationManager authenticationManager(UserDetailsService uds) {
     DaoAuthenticationProvider p = new DaoAuthenticationProvider();
     p.setUserDetailsService(uds);
-    // For CLI username-only, allow empty password (or plug in a real encoder).
     p.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
     return new ProviderManager(p);
   }

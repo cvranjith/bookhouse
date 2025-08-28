@@ -24,6 +24,12 @@ public class BookServiceTest {
 private UserService userService;
   private BookService bookService;
   private AuthService auth;
+    private final String ADMIN="admin";
+    private final String USER1="user1";
+    private final String USER2="user2";
+    private final String BOOK0="book0";
+    private final String BOOK1="book1";
+    private final String BOOK2="book2";
 
   @BeforeEach
   void setUp() {
@@ -50,12 +56,7 @@ private UserService userService;
     var r = auth.login(userId);
     assertTrue(r.ok(), "login failed for user: " + userId);
   }
-    private final String ADMIN="admin";
-    private final String USER1="user1";
-    private final String USER2="user2";
-    private final String BOOK0="book0";
-    private final String BOOK1="book1";
-    private final String BOOK2="book2";
+
 
 
 

@@ -19,6 +19,12 @@ import com.cvr.bookhouse.core.Result;
 public class AuthServiceTest {
 
   private AuthService auth;
+
+    private final String ADMIN="admin";
+    private final String ADMIN2="admin2";
+    private final String USER1="user1";
+    private final String USER2="user2";
+    
   @BeforeEach
   void setup() {
     AuthenticationManager authenticationManager = authentication ->
@@ -39,10 +45,7 @@ public class AuthServiceTest {
     return r.messages().stream().map(Msg::code).toList();
   }
 
-    private final String ADMIN="admin";
-    private final String ADMIN2="admin2";
-    private final String USER1="user1";
-    private final String USER2="user2";
+
 
   @Test
 void testFirstLogin() {
