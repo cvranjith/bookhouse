@@ -2,12 +2,15 @@ package com.cvr.bookhouse.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -317,8 +320,22 @@ private Result checkBorrowGate(String bookId, String userId, Book book) {
     );
     }
 
-
     public Result status(String userId){
+        Result loanStatus= loanStatus(userId);
+        Result waitlistStatus=waitlistStatus(userId);
+
+        List<Msg> msgs = new ArrayList<>();
+
+        msgs.add(new Msg("table", "[[MAGENTA]] Loan Status: [[RESET]]"));
+        msgs.addAll(loanStatus.messages());
+        msgs.add(new Msg("table", "[[MAGENTA]] Waitlist Status: [[RESET]]"));
+        msgs.addAll(waitlistStatus.messages());
+        
+        return Result.success(msgs);
+    }
+
+
+    public Result loanStatus(String userId){
         //UserService userService=new UserService();
         final boolean isAdmin = userService.isAdmin();
         if (!isAdmin && userId != null && !userId.isBlank() 
@@ -376,4 +393,39 @@ public Result waitlistStatus(String userId) {
             }
         );
     }
+
+public Result areBooksAvailableNow(String userId) {
+    if (userId == null || userId.isBlank()) {
+        return Result.success();
+    }
+
+    // All bookIds the user is waitlisted on (deduped)
+    Set<String> myBookIds = waitlists.values().stream()
+        .filter(w -> Objects.equals(w.getUserId(), userId))
+        .map(Waitlist::getBookId)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    List<Msg> msgs = new ArrayList<>();
+
+    for (String bookId : myBookIds) {
+        Book book = books.get(bookId);
+        if (book == null) continue;
+
+        int copies   = book.getCopies();
+        int borrowed = borrowedCount(bookId);
+        int available = copies - borrowed;
+        if (available <= 0) continue; // no copies to allocate
+
+        OptionalInt posOpt = getWaitlistPosition(bookId, userId);
+        // user is on the waitlist & their position is within the available copies
+        if (posOpt.isPresent() && posOpt.getAsInt() <= available) {
+            msgs.add(new Msg("book.available", bookId));
+        }
+    }
+
+    return Result.success(msgs);//.add("msgs", msgs);
+}
+public boolean anyBooksAvailableNow(String userId) {
+    return !areBooksAvailableNow(userId).messages().isEmpty();
+}
 }

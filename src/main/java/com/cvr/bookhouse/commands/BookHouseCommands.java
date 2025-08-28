@@ -68,13 +68,19 @@ public class BookHouseCommands {
             @ShellOption(help = "Book ID") String bookId) {
         return messageFormatter.format(bookService.removeFromWaitlist(bookId));
     }
-    
 
     @PreAuthorize("isAuthenticated()")
-    @ShellMethod(key = "status", value = "Print Loan Status. Usage: status [<userId>]")
+    @ShellMethod(key = "status", value = "Print Status of Loans and Waitlists. Usage: status [<userId>]")
         public String status(
             @ShellOption(help = "User ID", defaultValue = "") String userId) {
         return messageFormatter.format(bookService.status(userId));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @ShellMethod(key = "loan-status", value = "Print Loan Status. Usage: loan-status [<userId>]")
+        public String loanStatus(
+            @ShellOption(help = "User ID", defaultValue = "") String userId) {
+        return messageFormatter.format(bookService.loanStatus(userId));
     }
 
     @PreAuthorize("isAuthenticated()")

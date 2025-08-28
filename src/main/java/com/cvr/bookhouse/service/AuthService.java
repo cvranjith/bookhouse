@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.*;
 
 import com.cvr.bookhouse.core.Global;
-import com.cvr.bookhouse.core.MessageFormatter;
 import com.cvr.bookhouse.core.Msg;
 import com.cvr.bookhouse.core.Result;
 //import com.cvr.bookhouse.model.Session;
@@ -22,23 +21,26 @@ public class AuthService {
 //String userId="";
     //private final Session session;
     private final UserService userService;
+    private final BookService bookService;
     private final AuthenticationManager authenticationManager;
 
     public AuthService(AuthenticationManager authenticationManager,
+        BookService bookService,
         //Session session,
         UserService userService) {
         //this.session = session;
-        this.userService=userService;
         this.authenticationManager=authenticationManager;
+        this.bookService=bookService;
+        this.userService=userService;
     }
     private boolean isLoggedIn() {   
         //return !userId.isEmpty();
         //TODO***
         return true;//!session.getUserId().isEmpty();
     }
-    private Authentication current() {
+    /*private Authentication current() {
         return SecurityContextHolder.getContext().getAuthentication();
-    }
+    }*/
     public Result login(String newUserId) {
         if (newUserId.equals(Global.userId())) {
             return Result.failure()
@@ -71,6 +73,8 @@ public class AuthService {
         if (u.getRoles().contains("ADMIN")) {
             msgs.add(new Msg("admin.login"));
         }
+        Result status=bookService.status(Global.userId());
+        msgs.addAll(status.messages());
         return Result.success(msgs);
     }
 
