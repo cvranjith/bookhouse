@@ -1,6 +1,7 @@
+# Bookhouse CLI – Technical Design & Architecture
+
 ![banner](img/banner.png)
 
-# Bookhouse CLI – Technical Design & Architecture
 
 > **Audience:** Reviewers and engineers  
 > **Document Type:** Technical design & Architecture Document 
@@ -125,7 +126,6 @@ flowchart TD
     SVC --> AUD
     SVC --> APP
 ```
-
 
 ### 3.3 Package Layout
 
