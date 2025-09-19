@@ -108,9 +108,10 @@ flowchart TD
 
     HM[Helper Modules]
     SVC[Services Layer<br/>atomic flows, validations, business logic]
-    MEM[In Memory Store - SSOT<br/>users, books, loans, waitlist]
-    AUD[Audit Logger<br/>session audit file, shipper ready]
-    APP[App Logger<br/>Log4j2 RollingFile, no console]
+
+    MEM{{In Memory Store - SSOT<br/>users, books, loans, waitlist}}
+    AUD[/Audit Logger<br/>session audit file, shipper ready/]
+    APP[/App Logger<br/>Log4j2 RollingFile, no console/]
 
     SH --> SVC
     HM -.-> SVC
