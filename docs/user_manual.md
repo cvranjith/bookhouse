@@ -8,6 +8,7 @@
 
 📒📖📓📕📝📚📗📒📙📘📕📚📒📙📘📗📙📘📕📚📖📓📕📋📝
 ```
+
 # Bookhouse CLI — User Manual
 
 > **Version:** 1.0  
@@ -63,23 +64,8 @@ java -jar target/bookhouse-0.0.1-SNAPSHOT.jar
 > The shell starts and displays a banner and prompt `>`.
 
 **Example output:**
-```text
-java -jar target/bookhouse-0.0.1-SNAPSHOT.jar
 
-
-📚📗📒📙📘📕📚📖📓📕📋📝📚📗📒📙📕📚📖📓📕📋📝📕📘
- ____              _    _   _                      
-| __ )  ___   ___ | | _| | | | ___  _   _ ___  ___ 
-|  _ \ / _ \ / _ \| |/ / |_| |/ _ \| | | / __|/ _ \
-| |_) | (_) | (_) |   <|  _  | (_) | |_| \__ \  __/
-|____/ \___/ \___/|_|\_\_| |_|\___/ \__,_|___/\___|
-
-📒📖📓📕📝📚📗📒📙📘📕📚📒📙📘📗📙📘📕📚📖📓📕📋📝
-
-Version: 0.0.1-SNAPSHOT
-
-:> 
-```
+![banner](img/banner.png)
 
 ### First Steps
 ```text
@@ -136,20 +122,8 @@ Built-In Commands
 > **Prompt**: The shell prompt shows the current user, e.g. `alice>`. After `logout`, it returns to `>`.
 
 **Example :**
-```text
-:> login ranjith
-👋 Welcome, ranjith! You are now logged In
-🔑 This is your first login
- Your Loan Status:
-(no loans)
- Your Waitlist Status:
-(no waitlist)
-ranjith:> 
-ranjith:> whoami
-ranjith
-ranjith:> logout
-🚪 Good Bye, ranjith!
-```
+
+![example](img/login.png)
 
 ---
 
@@ -214,18 +188,8 @@ Below is the command list as shown by `help`, grouped by category. Each command 
 - **Notes:** If `--copies` is omitted, defaults to 1. Re-running adds (tops up) copies.
 - **Notes:** use \\" for escaping quotes.
 **Examples:**
-```text
-admin:> add-book "It Werks On My Machine (Deluxe Edition)"
-Added 1 copy(ies) of Book "It Werks On My Machine (Deluxe Edition)"
-Total copy(ies) available for this book now is 1
-admin:> add-book "It Werks On My Machine (Deluxe Edition)" --copies 10
-Added 10 copy(ies) of Book "It Werks On My Machine (Deluxe Edition)"
-Total copy(ies) available for this book now is 11
-admin:> 
-admin:> add-book "The \"Hello, World\" Anthology (Deluxe Edition)"
-Added 1 copy(ies) of Book "The "Hello, World" Anthology (Deluxe Edition)"
-Total copy(ies) available for this book now is 1
-```
+
+![add-books](img/add-books.png)
 
 ---
 
@@ -241,16 +205,8 @@ Total copy(ies) available for this book now is 1
 - **Notes:** Prompt updates to show current user.
 
 **Examples:**
-```text
-:> login alice
-👋 Welcome, alice! You are now logged In
-📅 Your last login was at 2025-08-28T13:55:06.937642Z
- Your Loan Status:
-(no loans)
- Your Waitlist Status:
-(no waitlist)
-alice:> 
-```
+
+![login-user](img/login-user.png)
 
 #### `logout`
 - **Description:** Log out the current user.  
@@ -262,11 +218,8 @@ alice:>
 - **Notes:** Returns to guest mode.
 
 **Examples:**
-```text
-alice:> logout
-🚪 Good Bye, alice!
-:> 
-```
+
+![logout-user](img/logout.png)
 
 ---
 
@@ -297,19 +250,8 @@ alice:>
 - **Tips:** Your build may support wildcard matching (e.g., `*`) depending on configuration.
 
 **Examples:**
-```text
-alice:> list
-sl | Book                                     | Total Copies | Available Copies
----+------------------------------------------+--------------+-----------------
-1  | It Werks On My Machine (Deluxe Edition)  | 11           | 11              
-2  | The "Hello, World" Anthology (Deluxe ... | 1            | 1               
 
-alice:> 
-alice:> list *Werks*
-sl | Book                                    | Total Copies | Available Copies
----+-----------------------------------------+--------------+-----------------
-1  | It Werks On My Machine (Deluxe Edition) | 11           | 11              
-```
+![list](img/list.png)
 
 #### `borrow`
 - **Description:** Borrow a book by `<bookId>`.  
@@ -323,12 +265,8 @@ sl | Book                                    | Total Copies | Available Copies
   - If unavailable, you may be guided to join the **waitlist**.
 
 **Examples:**
-```text
-alice:> borrow "It Werks On My Machine (Deluxe Edition)"
-Successuflly borrowed the book "It Werks On My Machine (Deluxe Edition)" at 2025-08-28T13:57:53.092400Z
-Loan Reference Number is "001"
-alice:>
-```
+
+![borrow](img/borrow.png)
 
 #### `return` (alias: `return-book`)
 - **Description:** Return a book by **book ID** or **loan ID**.  
@@ -342,18 +280,8 @@ alice:>
 - **Notes:** Returning by `loanId` is unambiguous when multiple books could share a loan group in the future.
 
 **Examples:**
-```text
-alice:> return "It Werks On My Machine (Deluxe Edition)"
-Successfully returned the book "It Werks On My Machine (Deluxe Edition)" (loanId "001")
-alice:> borrow "It Werks On My Machine (Deluxe Edition)"
-Successuflly borrowed the book "It Werks On My Machine (Deluxe Edition)" at 2025-08-28T13:58:38.384012Z
-Loan Reference Number is "002"
-alice:> return --loanId 002
-Successfully returned the book "It Werks On My Machine (Deluxe Edition)" (loanId "002")
-alice:> return "invalid"
-User has not borrowed the book "invalid"
-alice:> 
-```
+
+![return](img/return.png)
 
 #### `waitlist`
 - **Description:** Join the waitlist for a `<bookId>`.  
@@ -366,13 +294,8 @@ alice:>
 - **Notes:** If the book is indeed available for you to borrow, we will display a friendly information. The same information will be displayed during login time as well.
 
 **Examples:**
-```text
-alice:> waitlist "It Werks On My Machine (Deluxe Edition)"
-Succesfully joined the waitlist for book "It Werks On My Machine (Deluxe Edition)". Your position is 1
-📚📖  Good news! 📗📙 Your waitlisted book(s) availalbe now. Borrow them with command "borrow <bookId>" to grab it while stocks last!
-Your waitlisted book "It Werks On My Machine (Deluxe Edition)" is available to borrow!
-alice:> 
-```
+
+![waitlist](img/waitlist.png)
 
 #### `cancel-waitlist`
 - **Description:** Cancel your waitlist entry for `<bookId>`.  

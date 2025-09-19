@@ -1,3 +1,5 @@
+![banner](img/banner.png)
+
 # Bookhouse CLI – Technical Design & Architecture
 
 > **Audience:** Reviewers and engineers  
