@@ -525,7 +525,7 @@ You can:
 - `src/main/resources/messages.properties` (packaged default)
 - Or externalized on the classpath / config path if you prefer ops-driven overrides
 
-**Examples (exact lines you shared):**
+**Examples:**
 ```properties
 # Auth Service messages
 login.success= 👋 Welcome, [[BOLD]][[CYAN]]{0}[[RESET]]! You are now logged In
@@ -549,7 +549,7 @@ Customize the startup banner to align with your **brand** or environment. `banne
 
 **File location (typical):** `src/main/resources/banner.txt`
 
-**Default banner (exact block you shared):**
+**Default banner:**
 ```
 📚📗📒📙📘📕📚📖📓📕📋📝📚📗📒📙📕📚📖📓📕📋📝📕📘
  ____              _    _   _                      
@@ -571,7 +571,7 @@ Version: ${application.version}
 Any standard **Spring Boot** property can be customized via `application.properties` or `application.yml`.  
 Below is your logging example (Spring Boot **Logback** keys). If you’re using Log4j2, prefer `log4j2.xml` (see the design doc) and adjust accordingly.
 
-**Example (`application.properties`) — exact lines you shared:**
+**Example (`application.properties`):**
 ```properties
 # file logging
 logging.file.name=logs/bookhouse.log
