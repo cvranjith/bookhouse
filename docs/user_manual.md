@@ -603,7 +603,7 @@ logging.logback.rollingpolicy.total-size-cap=1GB
 - **Audit log** (e.g., `./audit.log`): Each command execution with timestamp, user, command, status, and summary.  
 - Logs are file-based to keep the shell output clean; they can be shipped to external log systems if needed.
 
-**Example log entries (paste real snippets):**
+**Example log entries:**
 ```text
 2025-08-28T21:16:27.372+08:00  INFO 54564 --- [bookhouse] [main] com.cvr.bookhouse.BookhouseApplication   : Starting BookhouseApplication using Java 17.0.16 with PID 54564 (/Users/ranjithcv/Documents/code/dkatalis/bookhouse/target/classes started by ranjithcv in /Users/ranjithcv/Documents/code/dkatalis/bookhouse)
 2025-08-28T21:16:27.373+08:00  INFO 54564 --- [bookhouse] [main] com.cvr.bookhouse.BookhouseApplication   : No active profile set, falling back to 1 default profile: "default"
