@@ -91,6 +91,8 @@ In-memory Store (SSOT: users, books, loans, waitlist — flat collections)
     └─► App Logger (Log4j2 RollingFile; no console logs; log-shipper-ready)
 ```
 
+### 3.2 Modular Components
+
 ```mermaid
 flowchart TD
     subgraph L1[Interaction and Security]
@@ -124,7 +126,8 @@ flowchart TD
     SVC --> APP
 ```
 
-### 3.2 Module / Package Layout
+
+### 3.3 Package Layout
 
 - `com.bookhouse.commands` — **Gateway** to shell commands (API). Separate files per domain for granularity:
   - `AdminCommands`, `BookHouseCommands`, `AuthCommands`.
