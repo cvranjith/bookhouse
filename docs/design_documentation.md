@@ -91,6 +91,38 @@ In-memory Store (SSOT: users, books, loans, waitlist — flat collections)
     └─► App Logger (Log4j2 RollingFile; no console logs; log-shipper-ready)
 ```
 
+```mermaid
+flowchart TD
+    subgraph L1[Interaction and Security]
+        U[User / Terminal]
+        SH[Spring Shell<br/>JLine history, help, completions, prompt/colors]
+        SEC[Spring Security]
+        U --> SH
+        SEC -.-> SH
+    end
+
+    subgraph L2[Core and UX Utilities]
+        CORE[Core Utilities<br/>constants, message formatter, persistence IO, audit API]
+        UX[Shell UX Customizations<br/>prompt, colors, value providers]
+    end
+
+    HM[Helper Modules]
+    SVC[Services Layer<br/>atomic flows, validations, business logic]
+    MEM[In Memory Store - SSOT<br/>users, books, loans, waitlist]
+    AUD[Audit Logger<br/>session audit file, shipper ready]
+    APP[App Logger<br/>Log4j2 RollingFile, no console]
+
+    SH --> SVC
+    HM -.-> SVC
+    CORE -.-> SH
+    CORE -.-> SVC
+    UX -.-> SH
+
+    SVC --> MEM
+    SVC --> AUD
+    SVC --> APP
+```
+
 ### 3.2 Module / Package Layout
 
 - `com.bookhouse.commands` — **Gateway** to shell commands (API). Separate files per domain for granularity:
