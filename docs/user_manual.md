@@ -616,8 +616,6 @@ book.added=📙 Added {0} copies of "{1}". Total now: {2}.
 loan.return.ok=✅ Returned book "{0}" (loanId: {1}).
 ```
 
-> **Where to show it:**  
-> Paste real CLI screenshots or transcripts here demonstrating how the messages render for different locales and with styling.
 
 
 ---
@@ -641,9 +639,6 @@ Customize the startup banner to align with your **brand** or environment. `banne
 
 Version: ${application.version}
 ```
-
-> **Where to show it:**  
-> Paste a screenshot or transcript of the startup banner here (e.g., when the JAR launches in your environment).
 
 
 ---
