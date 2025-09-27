@@ -1,5 +1,12 @@
 # Bookhouse CLI – Technical Design & Architecture
 
+This project originated from a coding challenge I recently received. While the original problem statement was fairly simple (to build a library CLI app), I decided to approach it from an architect’s perspective.
+
+Beyond the basic requirements, I’ve layered in features like security, auditing, traceability, modularity, reporting, and RBAC-based access control. The intent isn’t to over-engineer, but rather to showcase how I think about system design and the kind of trade-offs an architect considers.
+
+I’ve deliberately avoided directly using LLMs for coding — though I can’t rule out that some reference examples I looked at online may have been LLM-generated. The documentation, however, was authored with the help of LLMs: the ideas and content are entirely mine, but I’ve used AI to polish and articulate the write-up.
+
+
 ![banner](img/banner.png)
 
 
